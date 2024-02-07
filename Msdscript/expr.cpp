@@ -7,7 +7,70 @@
 #include "expr.h"
 #include <iostream>
 #include <stdexcept>
+#include <sstream>
 
+std::string Expr::to_string() const {
+    std::stringstream st("");
+    this->print(st);
+    return st.str();
+}
+void Expr::print(std::ostream& os) const {
+    os << "Expr";
+}
+
+
+void Expr::pretty_print_at(std::ostream& os, precedence_t prec_parent) const {
+    precedence_t prec_current = prec_none;
+    
+    if (dynamic_cast<const Add*>(this)) {
+        prec_current = prec_add;
+    } else if (dynamic_cast<const Mult*>(this)) {
+        prec_current = prec_mult;
+    }
+    
+    bool needs_parentheses = false;
+    
+    if (prec_current == prec_add) {
+        // For addition, add parentheses if parent precedence is lower than current precedence
+        needs_parentheses = (prec_parent >= prec_current);
+    }
+    else if(prec_current <= prec_none ){
+        needs_parentheses = (prec_parent <= prec_current);
+    }
+    else if (prec_current == prec_mult) {
+        // For multiplication, add parentheses if parent precedence is lower or equal to current precedence
+        needs_parentheses = (prec_parent <= prec_current);
+    }
+    
+    if (needs_parentheses) {
+        os << "(";
+    }
+    
+    print(os);
+    
+    if (needs_parentheses) {
+        os << ")";
+    }
+}
+
+
+
+
+
+
+
+
+// Implement the pretty_print method for Expr class
+ void Expr::pretty_print(std::ostream& os) const {
+    pretty_print_at(os, prec_none);
+}
+ std::string Expr::to_pretty_string() const {
+    //std::stringstream ss("");
+    std::stringstream ss;
+  // this->pretty_print(ss);
+    return ss.str();
+}
+//==============Number================
 
 
 Num::Num(int val) : val(val) {}
@@ -33,10 +96,18 @@ Expr* Num::subst(const std::string& var, Expr* replacement) const {
     return new Num(val);
 }
 
+
 Expr* Num::clone() const {
     return new Num(val);
 }
+void Num::print(std::ostream& os) const {
+    os << std::to_string(val);
+}
+std::string Num::to_string() const {
+    return std::to_string(val);
+}
 
+//==============Addition================
 
 Add::Add(Expr* lhs, Expr* rhs) : lhs(lhs), rhs(rhs) {}
 
@@ -65,6 +136,27 @@ Expr* Add::clone() const {
     return new Add(lhs->clone(), rhs->clone());
 }
 
+void Add::print(std::ostream& os) const  {
+   // os << "(";
+    lhs->print(os);
+    os << " + ";
+    rhs->print(os);
+  //  os << ")";
+}
+
+void Add::pretty_print(std::ostream& os) const{
+    lhs->pretty_print_at(os, prec_add);
+    os << " + ";
+    rhs->pretty_print_at(os, prec_add);
+}
+
+std::string Add::to_pretty_string() const  {
+    std::stringstream ss;
+    this->pretty_print(ss);
+    return ss.str();
+}
+
+//==============Multiplication================
 
 Mult::Mult(Expr* lhs, Expr* rhs) : lhs(lhs), rhs(rhs) {}
 
@@ -92,10 +184,29 @@ Expr* Mult::subst(const std::string& var, Expr* replacement) const {
 Expr* Mult::clone() const {
     return new Mult(lhs->clone(), rhs->clone());
 }
+//void Mult::print(std::ostream& os) const {
+//    os << "(" << lhs->to_string() << " * " << rhs->to_string() << ")";
+//}
+void Mult::print(std::ostream& os) const  {
+  //  os << "(";
+    lhs->print(os);
+    os << " * ";
+    rhs->print(os);
+   // os << ")";
+}
 
+void Mult::pretty_print(std::ostream& os) const {
+    lhs->pretty_print_at(os, prec_mult);
+    os << " * ";
+    rhs->pretty_print_at(os, prec_mult);
+}
+std::string Mult::to_pretty_string() const  {
+    std::stringstream ss;
+    this->pretty_print(ss);
+    return ss.str();
+}
 
-
-
+//==============Variable================
 Var::Var(const std::string& varName) : varName(varName) {}
 
 bool Var::equals(Expr* e) {
@@ -125,4 +236,7 @@ Expr* Var::subst(const std::string& var, Expr* replacement) const {
 
 Expr* Var::clone() const {
     return new Var(varName);
+}
+void Var::print(std::ostream& os) const {
+    os << varName;
 }
