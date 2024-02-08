@@ -1,9 +1,11 @@
-//
-//  cmdline.cpp
-//  HW2ExpressionClasses
-//
-//  Created by Rylie byers on 1/24/24.
-//
+/**
+* \file cmdline.cpp
+* \Checks user inputs
+*
+*
+* If user inserts --test all tests run, If they enter --help lists all calls. And returns error if the correct call isnt entered.
+* \author Rylie Byers
+*/
 
 #include "cmdline.hpp"
 
@@ -14,6 +16,12 @@
 #include <cstdlib>
 
 
+/**
+* \brief Parses command-line arguments to determine if tests should be run.
+* \param argc The number of command-line arguments
+* \param argv The array of command-line arguments.
+* \return  bool True if the "--test" flag is present, indicating that tests should be run; false otherwise
+*/
 
 bool use_arguments(int argc, char* argv[]) {
     bool runTestsFlag = false;

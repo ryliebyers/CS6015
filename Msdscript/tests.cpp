@@ -1,9 +1,11 @@
-//
-//  tests.cpp
-//  HW2ExpressionClasses
-//
-//  Created by Rylie byers on 1/23/24.
-//
+/**
+* \file tests.cpp
+* \Has tests to test methods in expr.cpp
+*
+*
+* Theres tests for var, num, add, and mult subclasses.
+* \author Rylie Byers
+*/
 
 #include <stdio.h>
 #include "catch.h"

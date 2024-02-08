@@ -1,9 +1,10 @@
-//
-//  cmdline.hpp
-//  HW2ExpressionClasses
-//
-//  Created by Rylie byers on 1/24/24.
-//
+/**
+* \file cmdline.hpp
+* \brief expression class
+*
+* Checks users input
+*/
+
 
 #ifndef cmdline_hpp
 #define cmdline_hpp
