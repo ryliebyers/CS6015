@@ -41,7 +41,7 @@ run: msdscript
 	./msdscript
 	
 test: msdscript
-./msdscript --test
+	./msdscript --test
 
 printM:
 	@echo "CXX: $(CXX)"
