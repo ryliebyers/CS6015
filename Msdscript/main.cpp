@@ -1,7 +1,7 @@
-**
-* \mainpage MSDScript
-* \author Rylie Byers
-* \date 01-24-2024
+/*
+* mainpage MSDScript
+* author Rylie Byers
+* date 01-24-2024
 */
 
 #include <stdio.h>
