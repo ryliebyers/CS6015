@@ -61,7 +61,8 @@ void Expr::pretty_print_at(std::ostream& os, precedence_t prec_parent) const {
     
     if (dynamic_cast<const Add*>(this)) {
            prec_current = prec_add;
-       } else if (dynamic_cast<const Mult*>(this)) {
+       } 
+    else if (dynamic_cast<const Mult*>(this)) {
            prec_current = prec_mult;
        }
     
@@ -380,7 +381,6 @@ void Mult::pretty_print_helper(std::ostream& os) const  {
     lhs->print(os);
     os << " * ";
     rhs->print(os);
-   
 }
 
 /**
