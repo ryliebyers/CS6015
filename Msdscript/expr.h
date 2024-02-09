@@ -31,7 +31,7 @@ public:
     virtual void print(std::ostream& os) const;
     virtual void pretty_print_at(std::ostream& os, precedence_t prec_current) const;
     virtual void pretty_print(std::ostream& os) const;
-    
+    virtual void pretty_print_helper(std::ostream& os) const;
     virtual std::string to_pretty_string() const;
         
 
@@ -51,6 +51,7 @@ public:
     Expr* clone() const override;
     std::string to_string() const;
     void print(std::ostream& os) const override;
+    void pretty_print_helper(std::ostream& os) const override;
 };
 
 //========Subclass for addition expressions========
@@ -67,6 +68,7 @@ public:
     Expr* subst(const std::string& var, Expr* replacement) const override;
     Expr* clone() const override;
     void print(std::ostream& os) const override;
+    void pretty_print_helper(std::ostream& os) const override;
     void pretty_print(std::ostream& os) const override;
     
     std::string to_pretty_string() const override;
@@ -87,6 +89,7 @@ public:
     Expr* clone() const override;
       void print(std::ostream& os) const override;
        void pretty_print(std::ostream& os) const override;
+    void pretty_print_helper(std::ostream& os) const override;
     std::string to_pretty_string() const override;
 };
 
@@ -104,6 +107,7 @@ public:
     Expr* subst(const std::string& var, Expr* replacement) const override;
     Expr* clone() const override;
     void print(std::ostream& os) const override;
+    void pretty_print_helper(std::ostream& os) const override;
 };
 
 

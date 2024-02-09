@@ -39,6 +39,14 @@ std::string Expr::to_string() const {
 void Expr::print(std::ostream& os) const {
     os << "Expr";
 }
+/**
+ * \brief Prints the expression to the output stream.
+ * \param os The output stream to print to.
+ *
+ */
+void Expr::pretty_print_helper(std::ostream& os) const {
+    os << "Hello from pretty helper";
+}
 
 /**
  * \brief Pretty printsthe expression with varying parentheses.
@@ -49,34 +57,39 @@ void Expr::print(std::ostream& os) const {
  */
 void Expr::pretty_print_at(std::ostream& os, precedence_t prec_parent) const {
     precedence_t prec_current = prec_none;
+   
     
     if (dynamic_cast<const Add*>(this)) {
-        prec_current = prec_add;
-    } else if (dynamic_cast<const Mult*>(this)) {
-        prec_current = prec_mult;
-    }
+           prec_current = prec_add;
+       } else if (dynamic_cast<const Mult*>(this)) {
+           prec_current = prec_mult;
+       }
     
     bool needs_parentheses = false;
     
     if (prec_current == prec_add) {
-        needs_parentheses = (prec_parent >= prec_current);
+        needs_parentheses = (prec_parent > prec_current);
     }
     else if(prec_current <= prec_none ){
         needs_parentheses = (prec_parent <= prec_current);
     }
     else if (prec_current == prec_mult) {
-        needs_parentheses = (prec_parent <= prec_current);
+        needs_parentheses = (prec_parent >= prec_current + 1);
+    
     }
     
+
     if (needs_parentheses) {
         os << "(";
     }
     
-    print(os);
+    pretty_print_helper(os);
+    
     
     if (needs_parentheses) {
         os << ")";
     }
+
 }
 
 /**
@@ -95,9 +108,7 @@ void Expr::pretty_print_at(std::ostream& os, precedence_t prec_parent) const {
  * \return A string representing the expression.
  */
  std::string Expr::to_pretty_string() const {
-    //std::stringstream ss("");
     std::stringstream ss;
-  // this->pretty_print(ss);
     return ss.str();
 }
 //==============Num subclass================
@@ -172,7 +183,9 @@ Expr* Num::clone() const {
 void Num::print(std::ostream& os) const {
     os << std::to_string(val);
 }
-
+void Num::pretty_print_helper(std::ostream& os) const {
+    os << std::to_string(val);
+}
 /**
  * \brief Returns a string representation of the Num expression.
  *
@@ -249,11 +262,21 @@ Expr* Add::clone() const {
  * \param os The output stream to print to.
  */
 void Add::print(std::ostream& os) const  {
-   // os << "(";
+    os << "(";
+    lhs->print(os);
+    os << "+";
+    rhs->print(os);
+    os << ")";
+}
+/**
+ * \brief Prints the Add expression to the output stream.
+ *
+ * \param os The output stream to print to.
+ */
+void Add::pretty_print_helper(std::ostream& os) const  {
     lhs->print(os);
     os << " + ";
     rhs->print(os);
-  //  os << ")";
 }
 /**
  * \brief Pretty prints the Add expression.
@@ -342,19 +365,31 @@ Expr* Mult::clone() const {
  */
 
 void Mult::print(std::ostream& os) const  {
-  //  os << "(";
+    os << "(";
+    lhs->print(os);
+    os << "*";
+    rhs->print(os);
+    os << ")";
+}
+/**
+ * \brief Prints the Mult expression to the output stream.
+ *
+ * \param os The output stream to print to.
+ */
+void Mult::pretty_print_helper(std::ostream& os) const  {
     lhs->print(os);
     os << " * ";
     rhs->print(os);
-   // os << ")";
+   
 }
+
 /**
  * \brief Pretty prints the Mult expression.
  *
  * \param os The output stream to print to.
  */
 void Mult::pretty_print(std::ostream& os) const {
-    lhs->pretty_print_at(os, prec_mult);
+    lhs->pretty_print_at(os, static_cast<precedence_t>(prec_mult +1));
     os << " * ";
     rhs->pretty_print_at(os, prec_mult);
 }
@@ -439,5 +474,13 @@ Expr* Var::clone() const {
  * \param os The output stream to print to.
  */
 void Var::print(std::ostream& os) const {
+    os << varName;
+}
+/**
+ * \brief Prints the Var expression to the output stream.
+ *
+ * \param os The output stream to print to.
+ */
+void Var::pretty_print_helper(std::ostream& os) const {
     os << varName;
 }
