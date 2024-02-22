@@ -4,27 +4,33 @@
 * date 01-24-2024
 */
 
-#include <stdio.h>
-#define CATCH_CONFIG_RUNNER
 #include "expr.h"
 #include "catch.h"
-#include <iostream>
-#include <cstdlib>
 #include "cmdline.hpp"
-
+#include "parse.hpp"
 
 
 
 int main(int argc, char* argv[]) {
-    
-    use_arguments(argc, argv);
-    
-    
-    if(use_arguments(argc, argv) == true){
-        Catch::Session().run() ;
-        exit(1);
+    run_mode_t mode = use_arguments(argc, argv);
+    if (mode != do_nothing) {
+        Expr *e = parse_expr(std::cin);
+        switch (mode) {
+            case do_nothing:
+                break;
+            case do_interp:
+                std::cout << e->interp() << "\n";
+                break;
+            case do_print:
+                e->print(std::cout);
+                std::cout << "\n";
+                break;
+            case do_pretty_print:
+                std::cout << e->to_pretty_string() << "\n";
+                break;
+        }
+        delete e; // Clean up dynamically allocated memory
     }
-    
     return 0;
 }
 

@@ -446,8 +446,8 @@ void Var::pretty_print(std::ostream& os, precedence_t prec) const {
 // maybe add a bool to pretty print
 
 
-Let::Let(const std::string& var, Expr* body_expr, Expr* rhs_expr)
-    : varName(var), body(body_expr), rhs(rhs_expr) {}
+Let::Let(const std::string& var, Expr* lhs_expr, Expr* body_expr, Expr* rhs_expr)
+    : varName(var), lhs(lhs_expr), body(body_expr), rhs(rhs_expr) {}
 
 
 
@@ -457,7 +457,7 @@ bool Let::equals( Expr* e)  {
     if (letPtr == nullptr) {
         return false;
     } else {
-        return body->equals(letPtr->body) && rhs->equals(letPtr->rhs);
+        return lhs->equals(letPtr->lhs) && body->equals(letPtr->body) && rhs->equals(letPtr->rhs);
     }
 }
 
@@ -470,7 +470,7 @@ int Let::interp() const{
 
 
 Expr* Let::subst(const std::string& var, Expr* replacement) const {
-    return new Let(var, body->subst(var, replacement), rhs->subst(var, replacement));
+    return new Let(var, body->subst(var, replacement), lhs->subst(var, replacement), rhs->subst(var, replacement));
 }
  
 
@@ -482,68 +482,42 @@ bool Let::has_variable() const {
 
 
 Expr* Let::clone() const {
-    return new Let(varName, body->clone(), rhs->clone());
+    return new Let(varName, lhs->clone(), body->clone(), rhs->clone());
 
 }
 
 
 void Let::print(std::ostream& os) const {
-    os << "(" << "_let " << varName << " = ";
+    os << "(" << "_let ";
+    lhs->print(os);
+    os << " = ";
     body->print(os);
     os << " _in ";
     rhs->print(os);
     os << ")";
 }
 
-//void Let::pretty_print(std::ostream& os, precedence_t prec) const {
-//    
-//
-//    auto print_indentation = [&os](int num_spaces) {
-//        for (int i = 0; i < num_spaces; ++i) {
-//            os << ' ';
-//        }
-//    };
-//
-//
-//    int indentation = os.tellp();
-//    if (prec > prec_none) {
-//            os << "(";
-//        }
-//    // Print the _let expression
-//    os << "_let " << varName << " = ";
-//    rhs->pretty_print(os, prec_none);
-//   
-//    os << '\n';
-//    print_indentation(indentation -10);
-//    os << "_in  ";
-//    body->pretty_print(os, prec_none);
-//
-//    // Check if parentheses are needed
-//    if (prec > prec_none) {
-//        os << ')';
-//    }
-//}
-
 void Let::pretty_print(std::ostream& os, precedence_t prec) const {
+    
+
     auto print_indentation = [&os](int num_spaces) {
         for (int i = 0; i < num_spaces; ++i) {
             os << ' ';
         }
     };
 
-    int indentation = 0; // Initial indentation
-    if (prec > prec_none) {
-        os << "(";
-        indentation = 1; // Adjust indentation for opening parenthesis
-    }
 
+    int indentation = os.tellp();
+    if (prec > prec_none) {
+            os << "(";
+        }
     // Print the _let expression
     os << "_let " << varName << " = ";
-    rhs->pretty_print(os, prec_none);
-
+    lhs->pretty_print(os, prec_none);
+   
     os << '\n';
-    print_indentation(indentation);
-    os << "_in ";
+    print_indentation(indentation -10);
+    os << "_in  ";
     body->pretty_print(os, prec_none);
 
     // Check if parentheses are needed

@@ -26,6 +26,8 @@ msdscript: $(OBJS)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
+#add -c -I./headers name.cpp
+# the dot means in current directory
 
 documentation: $(DOXYFILE)
 	doxygen $<
@@ -42,6 +44,9 @@ run: msdscript
 	
 test: msdscript
 	./msdscript --test
+	
+debug: msdscript
+	lldb msdscript
 
 printM:
 	@echo "CXX: $(CXX)"

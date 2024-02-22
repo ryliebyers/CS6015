@@ -114,13 +114,13 @@ public:
 class Let : public Expr {
 public:
     std::string varName; //!< Represents a variable
-       // Expr* lhs; //!< Represents the left-hand side expression
+        Expr* lhs; //!< Represents the left-hand side expression
         Expr* body; //!< Represents the body expression
         Expr* rhs; //!< Represents the right-hand side expression
     bool let_needs_parentheses;
 //        Let(const std::string& var, Expr* lhs_expr, Expr* body_expr, Expr* rhs_expr);
 
-   Let(const std::string& var, Expr* rhs_expr,Expr* body_expr);
+   Let(const std::string& var, Expr* lhs_expr, Expr* body_expr, Expr* rhs_expr);
 
     
     bool equals(Expr* e) override;

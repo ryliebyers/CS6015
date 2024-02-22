@@ -9,43 +9,56 @@
 
 #include "cmdline.hpp"
 
-#include <stdio.h>
-#include "expr.h"
-#include "catch.h"
-#include <iostream>
-#include <cstdlib>
-
-
-/**
+/** //update this
 * \brief Parses command-line arguments to determine if tests should be run.
 * \param argc The number of command-line arguments
 * \param argv The array of command-line arguments.
 * \return  bool True if the "--test" flag is present, indicating that tests should be run; false otherwise
 */
 
-bool use_arguments(int argc, char* argv[]) {
-    bool runTestsFlag = false;
 
-    for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "--help") == 0) {
-            std::cout << "Help text describing allowed arguments.\n";
-            std::cout << "--help : get help\n";
+run_mode_t use_arguments(int argc, char* argv[]) {
+    bool saw_tests = false;
+    run_mode_t mode = do_nothing;
+
+    for (int i = 1; i < argc; i++) {
+        if ((std::string)argv[i] == "--help") {
+            std::cout << "Available flags: \n";
             std::cout << "--test : run tests\n";
+            std::cout << "--help : this help\n";
+            std::cout << "--interp : ";
+            std::cout << "--print : ";
+            std::cout << "--pretty_print : ";
             exit(0);
-        } else if (strcmp(argv[i], "--test") == 0) {
-            if (runTestsFlag) {
-                std::cerr << "Error: --test already seen.\n";
+        } else if ((std::string)argv[i] == "--test") {
+            if (saw_tests) {
+                std::cerr << "duplicate --test flag\n";
                 exit(1);
-            } else {
-                runTestsFlag = true;
-                
             }
+            saw_tests = true;
+            Catch::Session().run();
+            exit(1);
+        } else if ((std::string)argv[i] == "--interp") {
+            check_mode_already(mode, argv[i]);
+            mode = do_interp;
+        } else if ((std::string)argv[i] == "--print") {
+            check_mode_already(mode, argv[i]);
+            mode = do_print;
+        } else if ((std::string)argv[i] == "--pretty_print") {
+            check_mode_already(mode, argv[i]);
+            mode = do_pretty_print;
         } else {
-            std::cerr << "Error: Unknown argument - " << argv[i] << "\n";
+            std::cerr << "bad flag: " << argv[i] << "\n";
             exit(1);
         }
     }
 
-    return runTestsFlag;
+    return mode;
 }
 
+static void check_mode_already(run_mode_t mode, std::string flag) {
+    if (mode != do_nothing) {
+        std::cerr << "extra flag: " << flag << "\n";
+        exit(1);
+    }
+}
