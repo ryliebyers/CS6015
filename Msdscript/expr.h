@@ -7,9 +7,20 @@
 
 #ifndef expr_h
 #define expr_h
-#pragma once
+
+
+#include <stdexcept>
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <stdlib.h>
+#include <map>
+#include <set>
+#include "pointer.h"
+#pragma once
+
+class Val; // Forward declaration
+class Env;// Forward declaration
 
 typedef enum {
     prec_none, //0
@@ -18,120 +29,187 @@ typedef enum {
 } precedence_t;
 
 
-//=========Class for expressions=========
-class Expr {
-public:
-    virtual bool equals(Expr *e) = 0;
-    virtual int interp() const = 0;
-    virtual bool has_variable() const = 0;
-    virtual Expr* subst(const std::string& var, Expr* replacement) const = 0;
-    virtual Expr* clone() const = 0;
-    virtual ~Expr() {}
-    std::string to_string() const;
-    virtual void print(std::ostream& os) const;
-    virtual void pretty_print(std::ostream& os, precedence_t prec) const;
-    virtual std::string to_pretty_string() const;
 
-        
+
+
+CLASS(Expr) {
+public:
+    virtual ~Expr() = default; 
+    virtual bool equals(PTR(Expr) e) = 0;
+    virtual PTR(Val) interp(PTR(Env) env) = 0;
+  //  virtual PTR(Expr) subst(std::string stringInput, PTR(Expr) e)=0;
+
+    std::string to_string() {
+        std::stringstream st("");
+        this->print(st);
+        return st.str();
+    }
+
+    std::string to_pretty_print_string(){
+        std::stringstream st("");
+        this->pretty_print_at(st);
+        return st.str();
+    }
+
+    virtual void print(std::ostream& stream)=0;
+    virtual void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren)=0;
+    virtual void pretty_print_at(std::ostream &ot)=0;
 
 };
 
-//=========Subclass for number expressions=========
 class Num : public Expr {
 public:
-    int val;//!< represents a number
-
+    int val;
     Num(int val);
-
-    bool equals(Expr* e) override;
-    int interp() const override;
-    bool has_variable() const override;
-    Expr* subst(const std::string& var, Expr* replacement) const override;
-    Expr* clone() const override;
-    std::string to_string() const;
-    void print(std::ostream& os) const override;
-    void pretty_print(std::ostream& os, precedence_t prec) const override;
+    bool equals(PTR(Expr) e) override;
+    PTR(Val) interp(PTR(Env) env) override;
+ //   PTR(Expr) subst(std::string stringInput, PTR(Expr) e) override;
+    void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+protected:
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
 };
 
-//========Subclass for addition expressions========
 class Add : public Expr {
 public:
-    Expr* lhs; //!< Represents left hand side
-    Expr* rhs; //!< Represents right hand side
+    PTR(Expr) lhs;
+    PTR(Expr) rhs;
 
-    Add(Expr* lhs, Expr* rhs);
+    Add(PTR(Expr) lhs, PTR(Expr) rhs);
+    bool equals(PTR(Expr) e) override;
+    PTR(Val) interp(PTR(Env) env) override;
+   // PTR(Expr) subst(std::string stringInput, PTR(Expr) e) override;
+    void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
 
-    bool equals(Expr* e) override;
-    int interp() const override;
-    bool has_variable() const override;
-    Expr* subst(const std::string& var, Expr* replacement) const override;
-    Expr* clone() const override;
-    void print(std::ostream& os) const override;
+protected:
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
 
-    void pretty_print(std::ostream& os, precedence_t prec) const override;
-    
-    std::string to_pretty_string() const override;
-  
 };
 
-//========Subclass for multiplication expressions========
 class Mult : public Expr {
 public:
-    Expr* lhs;//!< Represents left hand side
-    Expr* rhs;//!< Represents right hand side
+    PTR(Expr) lhs;
+    PTR(Expr) rhs;
 
-    Mult(Expr* lhs, Expr* rhs);
+    Mult(PTR(Expr) lhs, PTR(Expr) rhs);
+    bool equals(PTR(Expr) e) override;
+    PTR(Val) interp(PTR(Env) env) override;
+   // PTR(Expr) subst(std::string stringInput, PTR(Expr) e) override;
+    void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
 
-    bool equals(Expr* e) override;
-    int interp() const override;
-    bool has_variable() const override;
-    Expr* subst(const std::string& var, Expr* replacement) const override;
-    Expr* clone() const override;
-      void print(std::ostream& os) const override;
-       void pretty_print(std::ostream& os, precedence_t prec) const override;
+protected:
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
 
-    std::string to_pretty_string() const override;
- 
 };
-
-//========Subclass for variable expressions========
 
 class Var : public Expr {
 public:
-    std::string varName; //!< Represents a varible
+    std::string var;
+    Var(std::string varPassed);
+    bool equals(PTR(Expr) e) override;
+    PTR(Val) interp(PTR(Env) env) override;
+ //   PTR(Expr) subst(std::string stringInput, PTR(Expr) e) override;
+    void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
 
-    Var(const std::string& varName);
+protected:
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
 
-    bool equals(Expr* e) override;
-    int interp() const override;
-    bool has_variable() const override;
-    Expr* subst(const std::string& var, Expr* replacement) const override;
-    Expr* clone() const override;
-    void print(std::ostream& os) const override;
-     void pretty_print(std::ostream& os, precedence_t prec) const override;
 };
-//========Subclass for Let expressions========
-class Let : public Expr {
+
+
+class _Let : public Expr {
 public:
-    std::string varName; //!< Represents a variable
-       // Expr* lhs; //!< Represents the left-hand side expression
-        Expr* body; //!< Represents the body expression
-        Expr* rhs; //!< Represents the right-hand side expression
-    bool let_needs_parentheses;
-//        Let(const std::string& var, Expr* lhs_expr, Expr* body_expr, Expr* rhs_expr);
+    std::string varName;
+    PTR(Expr) head ;
+    PTR(Expr) body;
 
-   Let(const std::string& var, Expr* rhs_expr,Expr* body_expr);
+    bool equals(PTR(Expr) e) override;
+    PTR(Val) interp(PTR(Env) env) override;
+ //   PTR(Expr) subst(std::string stringInput, PTR(Expr) e) override;
+    void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+    _Let(std::string varName, PTR(Expr) expr1, PTR(Expr) expr2);
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+};
 
-    
-    bool equals(Expr* e) override;
-        int interp() const override;
-        bool has_variable() const override;
-    Expr* subst(const std::string& var, Expr* replacement) const override;
-    Expr* clone() const override;
-    std::string to_pretty_string() const override;
-    void print(std::ostream& os) const override;
-    void pretty_print(std::ostream& os, precedence_t prec) const override;
-   
+
+class BoolExpr: public Expr{
+public:
+    bool b;
+   // PTR(Expr) subst(std::string stringInput, PTR(Expr) e) override;
+    void pretty_print_at(std::ostream &ot) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+
+    BoolExpr(bool value);
+    PTR(Val) interp(PTR(Env) env) override;
+    void print(std::ostream& stream) override;
+    bool equals(PTR(Expr) e) override;
+};
+
+
+class IfExpr: public Expr{
+    PTR(Expr) condition;
+    PTR(Expr) thenExpr;
+    PTR(Expr) elseExpr;
+
+ //   PTR(Expr) subst(std::string stringInput, PTR(Expr) e) override;
+    void pretty_print_at(std::ostream &ot) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+public:
+    IfExpr(PTR(Expr) condition, PTR(Expr) thenExpr, PTR(Expr) elseExpr);
+    bool equals(PTR(Expr) e) override;
+    PTR(Val) interp(PTR(Env) env) override;
+    void print(std::ostream& stream) override;
+};
+
+class EqExpr: public Expr{
+    PTR(Expr) lhs;
+    PTR(Expr) rhs;
+ //   PTR(Expr) subst(std::string stringInput, PTR(Expr) e) override;
+    void pretty_print_at(std::ostream &ot) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+public:
+    EqExpr(PTR(Expr) lhs, PTR(Expr) rhs);
+    PTR(Val) interp(PTR(Env) env) override;
+    bool equals(PTR(Expr) e) override;
+    void print(std::ostream& stream) override;
+};
+
+class FunExpr: public Expr{
+public:
+    std::string formalArg;
+    PTR(Expr) body;
+    FunExpr(std::string passedArg, PTR(Expr) passedBody);
+    bool equals(PTR(Expr) e) override;
+    PTR(Val) interp(PTR(Env) env) override;
+//    PTR(Expr) subst(std::string stringInput, PTR(Expr) e) override;
+    void print(std::ostream &stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
     
 };
+
+class CallExpr : public Expr{
+public:
+    PTR(Expr) toBeCalled;
+    PTR(Expr) actualArg;
+    CallExpr(PTR(Expr) toBePassed, PTR(Expr) argPassed);
+    bool equals(PTR(Expr) e) override;
+    PTR(Val) interp(PTR(Env) env) override;
+ //   PTR(Expr) subst(std::string stringInput, PTR(Expr) e) override;
+    void print(std::ostream &stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+   
+};
+
+
+
+
+
+
+
 #endif /* expr_h */

@@ -48,6 +48,11 @@ test: msdscript
 debug: msdscript
 	lldb msdscript
 
+#test_msdscript: test_msdscript.o cmdline.o expr.o parse.o exec.o
+#	$(CXX) $(CXXFLAGS) -o test_msdscript test_msdscript.o cmdline.o expr.o parse.o exec.o
+	
+#testGeneration: test_msdscript
+
 printM:
 	@echo "CXX: $(CXX)"
 	@echo "CXXFLAGS: $(CXXFLAGS)"

@@ -16,6 +16,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
+#include "pointer.h"
+
 #pragma once
 
 
